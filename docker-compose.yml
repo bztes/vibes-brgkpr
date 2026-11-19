@@ -1,0 +1,15 @@
+services:
+  brgkpr:
+    build: .
+    image: brgkpr:latest
+    container_name: brgkpr
+    restart: unless-stopped
+    ports:
+      - '3000:3000' # web interface and restic REST server under /restic/ (put a reverse proxy with TLS in front of it)
+      - '2222:22' # SSH for borg / Pika Backup
+    environment:
+      # address opened in the browser when accessed directly over HTTP; remove behind a reverse proxy with TLS
+      - ORIGIN=http://localhost:3000
+    volumes:
+      - ./data:/data # database, SSH host keys, authorized_keys
+      - ./data/repos:/repos # repository storage (REPO_DIR)

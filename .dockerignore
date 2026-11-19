@@ -1,0 +1,13 @@
+node_modules
+.svelte-kit
+build
+data
+repos
+*.db
+*.db-*
+.env
+.env.*
+!.env.example
+.git
+.vscode
+.claude

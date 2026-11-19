@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+
+@layer base {
+	html {
+		@apply bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+		color-scheme: light dark;
+		font-feature-settings:
+			'cv11' 1,
+			'ss01' 1;
+	}
+
+	summary {
+		@apply select-none;
+	}
+
+	::selection {
+		@apply bg-emerald-200 text-emerald-950;
+	}
+}

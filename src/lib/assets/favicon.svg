@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+	<title>brgkpr</title>
+	<path
+		d="M32 5 55.4 18.5v27L32 59 8.6 45.5v-27Z"
+		fill="none"
+		stroke="#059669"
+		stroke-width="6"
+		stroke-linejoin="round"
+	/>
+	<circle cx="32" cy="32" r="8" fill="#059669" />
+</svg>
