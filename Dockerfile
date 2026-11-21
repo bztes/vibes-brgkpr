@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-trixie-slim AS build
+# Runs natively on the runner: the output is platform-independent JS, and vite's
+# native binaries crash with SIGILL (exit 132) under QEMU arm64 emulation.
+FROM --platform=$BUILDPLATFORM node:24-trixie-slim AS build
 WORKDIR /app
 RUN npm install -g pnpm@12.17.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
