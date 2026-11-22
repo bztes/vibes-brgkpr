@@ -7,6 +7,12 @@ pnpm dev
 
 Local data is stored in `./data` (see `.env.example`). restic also works locally at `rest:http://localhost:5173/restic/<repo>/`; SSH for Borg is only available in the container.
 
+To build and run the container from source:
+
+```sh
+docker compose -f compose.yml -f compose.dev.yml up --build
+```
+
 Before committing: `pnpm lint`, `pnpm check`, `pnpm test`.
 
 - Stack: SvelteKit with remote functions (`src/lib/api/*.remote.ts`), Svelte 5, Tailwind CSS 4, Drizzle with SQLite

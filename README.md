@@ -11,22 +11,7 @@ Self-hosted web interface for backup repositories using [Borg](https://www.borgb
 
 ## Quick start
 
-`docker-compose.yml`:
-
-```yaml
-services:
-  brgkpr:
-    image: ghcr.io/bztes/vibes-brgkpr:latest
-    restart: unless-stopped
-    ports:
-      - '3000:3000'
-      - '2222:22'
-    environment:
-      - ORIGIN=http://localhost:3000 # only without a reverse proxy, see below
-    volumes:
-      - ./data:/data
-      - ./repos:/repos
-```
+Download [compose.yml](compose.yml) and [.env.example](.env.example) as `.env` next to it, adjust `.env` (all options are described there), then:
 
 ```sh
 docker compose up -d
@@ -36,13 +21,11 @@ docker compose up -d
 - Borg: SSH on port `2222`
 - restic: `/restic/` on the web interface port
 
-Put the web interface behind a reverse proxy with TLS that passes the original `Host` header and allows large uploads (nginx: `proxy_set_header Host $host;` and `client_max_body_size 0;`) and remove `ORIGIN`. To log the real client address, set `ADDRESS_HEADER=x-forwarded-for`.
+Put the web interface behind a reverse proxy with TLS that passes the original `Host` header and allows large uploads (nginx: `proxy_set_header Host $host;` and `client_max_body_size 0;`).
 
-Without a reverse proxy (plain HTTP), `ORIGIN` must be the exact address you open in the browser (e.g. `http://192.168.1.10:3000`), otherwise logins and all other forms are rejected with `403`.
+Without a reverse proxy, set `ORIGIN` in `.env`, otherwise logins and all other forms are rejected with `403`.
 
 Under **Settings**, set the public URL of the web interface (**Auto** takes the current address); it is used for notification links and repository URLs. If the SSH port differs from `2222`, change it there too.
-
-Volumes: `/data` (database, SSH keys) and `/repos` (repositories). Optional: `PUID`/`PGID` (default 1000), `TZ`.
 
 ## Connecting a client
 
