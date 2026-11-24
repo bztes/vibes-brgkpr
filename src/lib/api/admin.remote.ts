@@ -10,8 +10,8 @@ import {
 	hashPassword,
 	requireAdmin
 } from '#lib/server/auth.js';
-import { diskUsage } from '#lib/server/backends/files.js';
 import { repoDir } from '#lib/server/paths.js';
+import { diskActivity, diskUsage } from '#lib/server/disk.js';
 import { syncAccess } from '#lib/server/backends/index.js';
 import { deleteRepo, toRepoView } from '#lib/server/repos.js';
 import { rescheduleScanner } from '#lib/server/scanner.js';
@@ -205,10 +205,14 @@ export const getAdminSettings = query(async () => {
 	return {
 		...s,
 		smtpPassword: '',
-		smtpPasswordSet: s.smtpPassword !== '',
-		repoDir,
-		disk: await diskUsage(repoDir)
+		smtpPasswordSet: s.smtpPassword !== ''
 	};
+});
+
+/** Polled by the settings page; cheap, the activity monitor keeps its data in memory. */
+export const getRepoDisk = query(async () => {
+	requireAdmin();
+	return { repoDir, usage: await diskUsage(repoDir), activity: diskActivity() };
 });
 
 export const updateGeneralSettings = form(

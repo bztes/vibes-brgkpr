@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		Alert,
+		Badge,
 		Button,
 		Card,
 		Checkbox,
@@ -12,17 +13,30 @@
 	} from '#lib/components/ui/index.js';
 	import {
 		getAdminSettings,
+		getRepoDisk,
 		updateBorgSettings,
 		updateGeneralSettings,
 		updateSmtpSettings
 	} from '#lib/api/admin.remote.js';
-	import { formatBytes } from '#lib/format.js';
+	import { formatBytes, formatDateTime, formatRelative, formatSpan } from '#lib/format.js';
 	import { PERMISSIONS, permissionKeys } from '#lib/permissions.js';
 
 	const s = $derived(await getAdminSettings());
 	const g = updateGeneralSettings.fields;
 	const b = updateBorgSettings.fields;
 	const m = updateSmtpSettings.fields;
+
+	const disk = $derived(await getRepoDisk());
+	const activity = $derived(disk.activity);
+
+	// follow the monitor's sampling while the tab is visible
+	$effect(() => {
+		if (!activity.ok) return;
+		const timer = setInterval(() => {
+			if (!document.hidden) void getRepoDisk().refresh();
+		}, activity.pollMs);
+		return () => clearInterval(timer);
+	});
 </script>
 
 <svelte:head><title>Settings · brgkpr</title></svelte:head>
@@ -84,28 +98,81 @@
 				</div>
 			</Field>
 
-			<div class="flex flex-col gap-1">
-				<CopyField label="Repository directory" value={s.repoDir} />
-				<p class="text-xs text-zinc-500 dark:text-zinc-400">
-					Set via the REPO_DIR environment variable.
-				</p>
-			</div>
-
-			{#if s.disk}
-				<div>
-					<div class="mb-1 flex justify-between text-xs text-zinc-500">
-						<span>Disk space in repository directory</span>
-						<span>{formatBytes(s.disk.free)} free of {formatBytes(s.disk.total)}</span>
-					</div>
-					<Progress value={1 - s.disk.free / s.disk.total} label="Disk usage" />
-				</div>
-			{/if}
-
 			<Button disabled={!!updateGeneralSettings.pending}>Save</Button>
 		</form>
 	</Card>
 
 	<div class="flex flex-col gap-6">
+		<Card title="Repository disk" description="Where repositories are stored.">
+			<div class="flex flex-col gap-1">
+				<CopyField label="Repository directory" value={disk.repoDir} />
+				<p class="text-xs text-zinc-500 dark:text-zinc-400">
+					Set via the REPO_DIR environment variable.
+				</p>
+			</div>
+
+			{#if disk.usage}
+				<div class="mt-4">
+					<div class="mb-1 flex justify-between text-xs text-zinc-500">
+						<span>Disk space</span>
+						<span>{formatBytes(disk.usage.free)} free of {formatBytes(disk.usage.total)}</span>
+					</div>
+					<Progress value={1 - disk.usage.free / disk.usage.total} label="Disk usage" />
+				</div>
+			{/if}
+
+			<h3 class="mt-6 text-sm font-medium text-zinc-800 dark:text-zinc-200">Activity</h3>
+			<p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+				When the disk last read or wrote. Shows whether something keeps it from spinning down;
+				whether it actually sleeps depends on its spin-down timeout.
+			</p>
+			{#if !activity.ok}
+				<p class="text-sm text-zinc-500 dark:text-zinc-400">{activity.reason}</p>
+			{:else}
+				<ul class="flex flex-col gap-4">
+					{#each activity.disks as d (d.name)}
+						{@const last = Math.max(d.lastReadAt?.getTime() ?? 0, d.lastWriteAt?.getTime() ?? 0)}
+						<li class="flex flex-col gap-2">
+							<div class="flex flex-wrap items-center justify-between gap-2">
+								<div class="text-sm">
+									<span class="font-mono font-medium">{d.name}</span>
+									{#if d.model}<span class="text-zinc-500 dark:text-zinc-400">· {d.model}</span
+										>{/if}
+									{#if d.rotational != null}
+										<span class="text-zinc-500 dark:text-zinc-400"
+											>· {d.rotational ? 'HDD' : 'SSD'}</span
+										>
+									{/if}
+								</div>
+								{#if d.busy}
+									<Badge tone="info" dot>Active</Badge>
+								{:else if last}
+									<Badge tone="neutral" dot>Idle for {formatSpan(Date.now() - last)}</Badge>
+								{:else}
+									<Badge tone="success" dot>No activity seen</Badge>
+								{/if}
+							</div>
+							<dl
+								class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400"
+							>
+								<dt>Last read</dt>
+								<dd title={formatDateTime(d.lastReadAt)}>
+									{d.lastReadAt ? formatRelative(d.lastReadAt) : 'none'}
+								</dd>
+								<dt>Last write</dt>
+								<dd title={formatDateTime(d.lastWriteAt)}>
+									{d.lastWriteAt ? formatRelative(d.lastWriteAt) : 'none'}
+								</dd>
+							</dl>
+						</li>
+					{/each}
+				</ul>
+				<p class="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+					Watching since {formatDateTime(activity.since)}, sampled every {activity.pollMs / 1000} seconds.
+				</p>
+			{/if}
+		</Card>
+
 		<Card
 			title="Borg"
 			description="SSH access for borg. The hostname is taken from the public URL of the web UI."

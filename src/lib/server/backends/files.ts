@@ -1,4 +1,4 @@
-import { mkdir, opendir, rm, stat, statfs } from 'node:fs/promises';
+import { mkdir, opendir, rm, stat } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 
 /** Recursively sums the apparent size of all files below `dir`, 0 if it doesn't exist. */
@@ -62,13 +62,4 @@ export async function deleteRepoDir(path: string, expectedId: string, baseDirs: 
 	if (baseDirs.some((b) => resolve(b) === abs))
 		throw new Error('The base directory cannot be deleted');
 	await rm(abs, { recursive: true, force: true });
-}
-
-export async function diskUsage(path: string) {
-	try {
-		const s = await statfs(path);
-		return { total: s.blocks * s.bsize, free: s.bavail * s.bsize };
-	} catch {
-		return null;
-	}
 }

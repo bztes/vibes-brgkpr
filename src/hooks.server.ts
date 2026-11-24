@@ -6,6 +6,7 @@ import { SESSION_COOKIE, validateSessionToken } from '#lib/server/auth.js';
 import { startBackends } from '#lib/server/backends/index.js';
 import { startScanner } from '#lib/server/scanner.js';
 import { closeStaleSessions } from '#lib/server/connections.js';
+import { startDiskMonitor } from '#lib/server/disk.js';
 
 export const init: ServerInit = async () => {
 	if (building) return;
@@ -13,6 +14,7 @@ export const init: ServerInit = async () => {
 	await closeStaleSessions();
 	await startBackends();
 	startScanner();
+	void startDiskMonitor();
 };
 
 const PUBLIC_ROUTES = ['/login', '/signup'];
