@@ -1,5 +1,15 @@
 # vibes-brgkpr
 
+## 0.2.0
+
+### Minor Changes
+
+- [`a72221f`](https://github.com/bztes/vibes-brgkpr/commit/a72221fe4a1170e2d265e920eec0dc737e1eb72d) Thanks [@bztes](https://github.com/bztes)! - Show the repository directory in the admin settings
+
+- [`2627243`](https://github.com/bztes/vibes-brgkpr/commit/2627243ce8e09a4cf5a7c5c08ed6d0063640330f) Thanks [@bztes](https://github.com/bztes)! - Add a Docker health check
+
+- [`8de4870`](https://github.com/bztes/vibes-brgkpr/commit/8de4870c09f95629887014f41cb137bd85fbf093) Thanks [@bztes](https://github.com/bztes)! - Show when the repository disk last read or wrote in the admin settings, to see whether it can spin down
+
 ## 0.1.0
 
 ### Minor Changes
