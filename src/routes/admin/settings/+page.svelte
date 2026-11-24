@@ -4,6 +4,7 @@
 		Button,
 		Card,
 		Checkbox,
+		CopyField,
 		Field,
 		Input,
 		PageHeader,
@@ -82,6 +83,13 @@
 					</Button>
 				</div>
 			</Field>
+
+			<div class="flex flex-col gap-1">
+				<CopyField label="Repository directory" value={s.repoDir} />
+				<p class="text-xs text-zinc-500 dark:text-zinc-400">
+					Set via the REPO_DIR environment variable.
+				</p>
+			</div>
 
 			{#if s.disk}
 				<div>

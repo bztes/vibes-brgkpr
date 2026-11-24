@@ -206,6 +206,7 @@ export const getAdminSettings = query(async () => {
 		...s,
 		smtpPassword: '',
 		smtpPasswordSet: s.smtpPassword !== '',
+		repoDir,
 		disk: await diskUsage(repoDir)
 	};
 });
