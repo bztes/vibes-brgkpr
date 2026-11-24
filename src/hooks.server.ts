@@ -18,6 +18,9 @@ export const init: ServerInit = async () => {
 const PUBLIC_ROUTES = ['/login', '/signup'];
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// Docker HEALTHCHECK, see Dockerfile
+	if (event.url.pathname === '/health') return resolve(event);
+
 	const token = event.cookies.get(SESSION_COOKIE);
 	event.locals.user = token ? await validateSessionToken(token) : null;
 
